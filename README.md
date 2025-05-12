@@ -7,18 +7,18 @@ A l’issue de ce module, l’apprenant sera à même d’utiliser une technolog
 | Description | barème |  fait |
 |:---|----:|----:|
 | maquettage | 1,5 | X |
-| framework CSS                                                | 1 | X |
-| utilisation d'une plateforme de versionning (git)            | 1| X |
-| API GET : création d'une page d'affichage de donnée           |0,5| X |
+| framework CSS                                                | 1 | ✔ |
+| utilisation d'une plateforme de versionning (git)            | 1| ✔ |
+| API GET : création d'une page d'affichage de donnée           |0,5| ✔ |
 |   API  POST & PUT : création d'un formulaire pour utiliser l'API       |1| X |
 |   API DELETE : rendre la possibilité de supprimer un seul élément|0,5| X |
 | création d'un composants personnalisés                      | 1| X |
-| utilisation du local Storage (gestion du token JWT par exemple)                                | 1| X |
+| utilisation du local Storage (gestion du token JWT par exemple)                                | 1| ✔ |
 | réalisation de tests unitaires (via un framework )           | 1,5| X |
 | formulaire multi etape                                       | 1| X |
 | transition                                                   | 1| X |
-| site web responsive                                          | 1,5| X |
-| Le design du site                                            | 1,5| X |
+| site web responsive                                          | 1,5| ✔ |
+| Le design du site                                            | 1,5| ✔ |
 | mise en prod d'une version optimiser pour la prod            | 3| X |
 | présentation du projet                                       | 2| X |
 
