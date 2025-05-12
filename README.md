@@ -10,8 +10,8 @@ A l’issue de ce module, l’apprenant sera à même d’utiliser une technolog
 | framework CSS                                                | 1 | ✔ |
 | utilisation d'une plateforme de versionning (git)            | 1| ✔ |
 | API GET : création d'une page d'affichage de donnée           |0,5| ✔ |
-|   API  POST & PUT : création d'un formulaire pour utiliser l'API       |1| ❌ |
-|   API DELETE : rendre la possibilité de supprimer un seul élément|0,5| ❌ |
+|   API  POST & PUT : création d'un formulaire pour utiliser l'API       |1| ✔ |
+|   API DELETE : rendre la possibilité de supprimer un seul élément|0,5| ✔ |
 | création d'un composants personnalisés                      | 1| ❌ |
 | utilisation du local Storage (gestion du token JWT par exemple)                                | 1| ✔ |
 | réalisation de tests unitaires (via un framework )           | 1,5| ❌ |
