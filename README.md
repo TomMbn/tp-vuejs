@@ -17,7 +17,7 @@ A l’issue de ce module, l’apprenant sera à même d’utiliser une technolog
 | réalisation de tests unitaires (via un framework )           | 1,5| ❌ |
 | formulaire multi etape                                       | 1| ❌ |
 | transition                                                   | 1| ❌ |
-| site web responsive                                          | 1,5| ❌ |
+| site web responsive                                          | 1,5| ✔ |
 | Le design du site                                            | 1,5| ✔ |
 | mise en prod d'une version optimiser pour la prod            | 3| ❌ |
 | présentation du projet                                       | 2| ❌ |
