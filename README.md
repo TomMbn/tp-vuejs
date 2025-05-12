@@ -16,7 +16,7 @@ A l’issue de ce module, l’apprenant sera à même d’utiliser une technolog
 | utilisation du local Storage (gestion du token JWT par exemple)                                | 1| ✔ |
 | réalisation de tests unitaires (via un framework )           | 1,5| ❌ |
 | formulaire multi etape                                       | 1| ❌ |
-| transition                                                   | 1| ❌ |
+| transition                                                   | 1| ✔ |
 | site web responsive                                          | 1,5| ✔ |
 | Le design du site                                            | 1,5| ✔ |
 | mise en prod d'une version optimiser pour la prod            | 3| ❌ |
