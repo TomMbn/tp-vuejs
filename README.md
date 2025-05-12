@@ -6,7 +6,7 @@ A l’issue de ce module, l’apprenant sera à même d’utiliser une technolog
 
 | Description | barème |  fait |
 |:---|----:|----:|
-| maquettage | 1,5 | X |
+| maquettage | 1,5 | ❌ |
 | framework CSS                                                | 1 | ✔ |
 | utilisation d'une plateforme de versionning (git)            | 1| ✔ |
 | API GET : création d'une page d'affichage de donnée           |0,5| ✔ |
