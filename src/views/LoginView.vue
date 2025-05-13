@@ -1,3 +1,31 @@
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const email = ref('')
+const password = ref('')
+const error = ref('')
+const loading = ref(false)
+
+const handleLogin = async () => {
+  loading.value = true
+  error.value = ''
+  
+  try {
+    await authStore.login(email.value, password.value)
+    router.push('/products')
+  } catch (err) {
+    error.value = 'Email ou mot de passe incorrect'
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
 <template>
   <div class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
@@ -56,32 +84,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-const email = ref('')
-const password = ref('')
-const error = ref('')
-const loading = ref(false)
-
-const handleLogin = async () => {
-  loading.value = true
-  error.value = ''
-  
-  try {
-    await authStore.login(email.value, password.value)
-    router.push('/products')
-  } catch (err) {
-    error.value = 'Email ou mot de passe incorrect'
-  } finally {
-    loading.value = false
-  }
-}
-</script> 
+</template> 

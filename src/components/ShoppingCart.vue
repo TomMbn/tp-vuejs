@@ -1,3 +1,26 @@
+<script setup>
+import { ref } from 'vue'
+import { useCartStore } from '../stores/cart'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const cartStore = useCartStore()
+const isOpen = ref(false)
+
+const updateQuantity = (productId, quantity) => {
+  cartStore.updateQuantity(productId, quantity)
+}
+
+const removeFromCart = (productId) => {
+  cartStore.removeFromCart(productId)
+}
+
+const checkout = () => {
+  isOpen.value = false
+  router.push('/checkout')
+}
+</script>
+
 <template>
   <div class="relative">
     <!-- Cart Button -->
@@ -93,27 +116,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { ref } from 'vue'
-import { useCartStore } from '../stores/cart'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-const cartStore = useCartStore()
-const isOpen = ref(false)
-
-const updateQuantity = (productId, quantity) => {
-  cartStore.updateQuantity(productId, quantity)
-}
-
-const removeFromCart = (productId) => {
-  cartStore.removeFromCart(productId)
-}
-
-const checkout = () => {
-  isOpen.value = false
-  router.push('/checkout')
-}
-</script> 
+</template> 

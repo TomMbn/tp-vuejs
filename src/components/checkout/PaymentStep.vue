@@ -1,3 +1,29 @@
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useCheckoutStore } from '../../stores/checkout'
+
+const checkoutStore = useCheckoutStore()
+const emit = defineEmits(['submit', 'back'])
+
+const formData = ref({
+  cardType: '',
+  cardNumber: '',
+  expiryDate: '',
+  cvv: '',
+  cardholderName: ''
+})
+
+onMounted(() => {
+  // Charger les données sauvegardées si elles existent
+  formData.value = { ...checkoutStore.paymentInfo }
+})
+
+const submitForm = () => {
+  checkoutStore.setPaymentInfo(formData.value)
+  emit('submit', formData.value)
+}
+</script>
+
 <template>
   <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
     <div class="md:grid md:grid-cols-3 md:gap-6">
@@ -107,30 +133,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useCheckoutStore } from '../../stores/checkout'
-
-const checkoutStore = useCheckoutStore()
-const emit = defineEmits(['submit', 'back'])
-
-const formData = ref({
-  cardType: '',
-  cardNumber: '',
-  expiryDate: '',
-  cvv: '',
-  cardholderName: ''
-})
-
-onMounted(() => {
-  // Charger les données sauvegardées si elles existent
-  formData.value = { ...checkoutStore.paymentInfo }
-})
-
-const submitForm = () => {
-  checkoutStore.setPaymentInfo(formData.value)
-  emit('submit', formData.value)
-}
-</script> 
+</template> 

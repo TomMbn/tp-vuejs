@@ -1,3 +1,18 @@
+<script setup>
+import { defineProps } from 'vue'
+
+defineProps({
+  steps: {
+    type: Array,
+    required: true
+  },
+  currentStep: {
+    type: Number,
+    required: true
+  }
+})
+</script>
+
 <template>
   <nav aria-label="Progress" class="mb-8">
     <ol role="list" class="space-y-4 md:flex md:space-y-0 md:space-x-8">
@@ -35,19 +50,4 @@
       </li>
     </ol>
   </nav>
-</template>
-
-<script setup>
-import { defineProps } from 'vue'
-
-defineProps({
-  steps: {
-    type: Array,
-    required: true
-  },
-  currentStep: {
-    type: Number,
-    required: true
-  }
-})
-</script> 
+</template> 

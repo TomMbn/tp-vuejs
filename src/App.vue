@@ -1,12 +1,19 @@
 <script setup>
+// Vue core imports
 import { ref } from 'vue'
-import { useAuthStore } from './stores/auth'
 import { useRouter } from 'vue-router'
 
+// Store imports
+import { useAuthStore } from './stores/auth'
+
+// Router and store instances
 const router = useRouter()
 const authStore = useAuthStore()
+
+// State management
 const mobileMenuOpen = ref(false)
 
+// Methods
 const logout = () => {
   authStore.logout()
   router.push('/')
@@ -15,9 +22,11 @@ const logout = () => {
 
 <template>
   <div class="min-h-screen bg-gray-100 w-full">
+    <!-- Navigation -->
     <nav v-if="authStore.isAuthenticated" class="bg-gray-800 w-full">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
+          <!-- Logo and desktop navigation -->
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <router-link to="/" class="text-white font-bold text-xl">
@@ -36,6 +45,8 @@ const logout = () => {
               </div>
             </div>
           </div>
+
+          <!-- Desktop menu -->
           <div class="hidden md:block">
             <div class="ml-4 flex items-center md:ml-6">
               <button
@@ -81,7 +92,7 @@ const logout = () => {
         </div>
       </div>
 
-      <!-- Mobile menu, show/hide based on menu state -->
+      <!-- Mobile menu -->
       <div
         :class="{'block': mobileMenuOpen, 'hidden': !mobileMenuOpen}"
         class="md:hidden"
@@ -105,6 +116,7 @@ const logout = () => {
       </div>
     </nav>
 
+    <!-- Main content -->
     <main class="w-full">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <router-view v-slot="{ Component }">
@@ -118,6 +130,7 @@ const logout = () => {
 </template>
 
 <style>
+/* Page transition animations */
 .page-enter-active,
 .page-leave-active {
   transition: opacity 0.2s ease;

@@ -2,6 +2,7 @@
   <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div class="px-4 py-6 sm:px-0">
       <div class="flex flex-col space-y-4">
+        <!-- Header -->
         <div class="flex justify-between items-center">
           <h1 class="text-3xl font-bold text-gray-900">Produits</h1>
           <div class="flex items-center space-x-4">
@@ -55,13 +56,12 @@
         </div>
       </div>
 
-      <!-- Loading state -->
+      <!-- Content states -->
       <div v-if="productStore.loading" class="text-center py-12">
         <div class="spinner"></div>
         <p class="mt-4 text-gray-500">Chargement des produits...</p>
       </div>
 
-      <!-- Error state -->
       <div v-else-if="productStore.error" class="text-center py-12">
         <p class="text-red-600">{{ productStore.error }}</p>
         <button
@@ -222,7 +222,7 @@
       </div>
     </div>
 
-    <!-- Add/Edit Product Modal -->
+    <!-- Modal -->
     <div v-if="showAddModal" class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center" @click="handleClickOutside">
       <div ref="modalRef" class="bg-white rounded-lg p-6 max-w-md w-full">
         <div class="flex justify-between items-center mb-4">
@@ -317,20 +317,33 @@
 </template>
 
 <script setup>
+// Vue core imports
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+
+// Store imports
 import { useProductStore } from '../stores/products'
 import { useSupplierStore } from '../stores/suppliers'
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
+
+// Component imports
 import ShoppingCart from '../components/ShoppingCart.vue'
 
+// Store instances
 const productStore = useProductStore()
 const supplierStore = useSupplierStore()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
+
+// Constants
+const ITEMS_PER_PAGE = 25
+
+// State management
 const showAddModal = ref(false)
 const editingProduct = ref(null)
 const modalRef = ref(null)
+const currentPage = ref(1)
+
 const productForm = ref({
   id_produit: null,
   marque: '',
@@ -347,8 +360,8 @@ const filters = ref({
   marque: ''
 })
 
-const ITEMS_PER_PAGE = 25
-const currentPage = ref(1)
+// Computed properties
+const isAdmin = computed(() => authStore.userRole === 'admin')
 
 const availableTypes = computed(() => {
   const types = new Set(productStore.products.map(p => p.type))
@@ -378,14 +391,43 @@ const paginatedProducts = computed(() => {
   return filteredProducts.value.slice(start, end)
 })
 
-const resetFilters = () => {
-  filters.value = {
+// Methods - Form handling
+const resetForm = () => {
+  productForm.value = {
+    id_produit: null,
+    marque: '',
+    nom_modele: '',
+    description: '',
     type: '',
-    marque: ''
+    prix: 0,
+    stock: 0,
+    id_fournisseur: ''
   }
-  currentPage.value = 1
+  editingProduct.value = null
 }
 
+const handleSubmit = async () => {
+  try {
+    const formData = {
+      ...productForm.value,
+      id_fournisseur: parseInt(productForm.value.id_fournisseur, 10)
+    }
+    
+    if (editingProduct.value) {
+      await productStore.updateProduct(formData.id_produit, formData)
+    } else {
+      await productStore.createProduct(formData)
+    }
+    showAddModal.value = false
+    resetForm()
+    await productStore.fetchProducts()
+  } catch (error) {
+    console.error('Error submitting product:', error)
+    productStore.error = error.message || 'Une erreur est survenue lors de la soumission du produit'
+  }
+}
+
+// Methods - Modal handling
 const openAddModal = () => {
   resetForm()
   showAddModal.value = true
@@ -408,36 +450,8 @@ const handleEscapeKey = (event) => {
   }
 }
 
-onMounted(() => {
-  document.addEventListener('keydown', handleEscapeKey)
-  Promise.all([
-    productStore.fetchProducts(),
-    supplierStore.fetchSuppliers()
-  ]).catch(error => {
-    console.error('Error loading data:', error)
-  })
-})
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', handleEscapeKey)
-})
-
-const resetForm = () => {
-  productForm.value = {
-    id_produit: null,
-    marque: '',
-    nom_modele: '',
-    description: '',
-    type: '',
-    prix: 0,
-    stock: 0,
-    id_fournisseur: ''
-  }
-  editingProduct.value = null
-}
-
+// Methods - Product operations
 const editProduct = (product) => {
-  console.log('Editing product:', product)
   editingProduct.value = product
   productForm.value = {
     id_produit: product.id_produit,
@@ -449,7 +463,6 @@ const editProduct = (product) => {
     type: product.type,
     id_fournisseur: product.id_fournisseur || ''
   }
-  console.log('Product form initialized:', productForm.value)
   showAddModal.value = true
 }
 
@@ -463,27 +476,17 @@ const deleteProduct = async (id) => {
   }
 }
 
-const handleSubmit = async () => {
-  try {
-    const formData = {
-      ...productForm.value,
-      id_fournisseur: parseInt(productForm.value.id_fournisseur, 10)
-    }
-    
-    console.log('Submitting product with data:', formData)
-    
-    if (editingProduct.value) {
-      await productStore.updateProduct(formData.id_produit, formData)
-    } else {
-      await productStore.createProduct(formData)
-    }
-    showAddModal.value = false
-    resetForm()
-    await productStore.fetchProducts()
-  } catch (error) {
-    console.error('Error submitting product:', error)
-    productStore.error = error.message || 'Une erreur est survenue lors de la soumission du produit'
+const addToCart = (product) => {
+  cartStore.addToCart(product)
+}
+
+// Methods - Filtering and pagination
+const resetFilters = () => {
+  filters.value = {
+    type: '',
+    marque: ''
   }
+  currentPage.value = 1
 }
 
 const goToPage = (page) => {
@@ -503,18 +506,29 @@ const nextPage = () => {
   }
 }
 
+// Lifecycle hooks
+onMounted(() => {
+  document.addEventListener('keydown', handleEscapeKey)
+  Promise.all([
+    productStore.fetchProducts(),
+    supplierStore.fetchSuppliers()
+  ]).catch(error => {
+    console.error('Error loading data:', error)
+  })
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscapeKey)
+})
+
+// Watchers
 watch(filters, () => {
   currentPage.value = 1
 })
-
-const isAdmin = computed(() => authStore.userRole === 'admin')
-
-const addToCart = (product) => {
-  cartStore.addToCart(product)
-}
 </script>
 
 <style scoped>
+/* Spinner animation */
 .spinner {
   border: 4px solid rgba(0, 0, 0, 0.1);
   width: 36px;
@@ -526,11 +540,7 @@ const addToCart = (product) => {
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 </style> 
