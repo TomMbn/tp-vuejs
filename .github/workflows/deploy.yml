@@ -23,7 +23,7 @@ jobs:
         npm install
         npm run build
 
-    - name: Deploy to VPS via SSH
+    - name: Deploy to VPS via SCP
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.VPS_HOST }}
@@ -31,3 +31,5 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         source: "dist/*"
         target: ${{ secrets.VPS_PATH }}
+        strip_components: 1
+        overwrite: true
