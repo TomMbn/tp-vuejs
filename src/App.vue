@@ -21,7 +21,7 @@ const logout = () => {
           <div class="flex items-center">
             <div class="flex-shrink-0">
               <router-link to="/" class="text-white font-bold text-xl">
-                Ma boutique
+                KliK
               </router-link>
             </div>
             <div class="hidden md:block">
