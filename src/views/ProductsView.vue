@@ -3,7 +3,7 @@
     <div class="px-4 py-6 sm:px-0">
       <div class="flex flex-col space-y-4">
         <div class="flex justify-between items-center">
-          <h1 class="text-3xl font-bold text-gray-900">Produit</h1>
+          <h1 class="text-3xl font-bold text-gray-900">Product</h1>
           <div class="flex items-center space-x-4">
             <ShoppingCart v-if="!isAdmin" />
             <button
