@@ -507,14 +507,19 @@ const nextPage = () => {
 }
 
 // Lifecycle hooks
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('keydown', handleEscapeKey)
-  Promise.all([
-    productStore.fetchProducts(),
-    supplierStore.fetchSuppliers()
-  ]).catch(error => {
+  
+  try {
+    await productStore.fetchProducts()
+    
+    // Ne charger les fournisseurs que si l'utilisateur est admin
+    if (authStore.userRole === 'admin') {
+      await supplierStore.fetchSuppliers()
+    }
+  } catch (error) {
     console.error('Error loading data:', error)
-  })
+  }
 })
 
 onUnmounted(() => {
