@@ -19,7 +19,7 @@ A l’issue de ce module, l’apprenant sera à même d’utiliser une technolog
 | transition                                                   | 1| ✔ |
 | site web responsive                                          | 1,5| ✔ |
 | Le design du site                                            | 1,5| ✔ |
-| mise en prod d'une version optimiser pour la prod            | 3| ❌ |
+| mise en prod d'une version optimiser pour la prod            | 3| ✔ |
 | présentation du projet                                       | 2| ❌ |
 
 L'évaluation se fera durant une présentation de 12 minutes avec un retour de 8 minutes par le jury composé de Clément et Swann.
