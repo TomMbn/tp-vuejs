@@ -1,17 +1,21 @@
 <script setup>
 // Vue core imports
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
 // Store imports
 import { useAuthStore } from './stores/auth'
 
 // Router and store instances
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 // State management
 const mobileMenuOpen = ref(false)
+
+// Computed
+const isLoginPage = computed(() => route.name === 'login')
 
 // Methods
 const logout = () => {
@@ -118,7 +122,7 @@ const logout = () => {
 
     <!-- Main content -->
     <main class="w-full">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <div :class="{'px-4 sm:px-6 lg:px-8 py-8': !isLoginPage}" class="max-w-7xl mx-auto w-full">
         <router-view v-slot="{ Component }">
           <transition name="page" mode="out-in">
             <component :is="Component" />
