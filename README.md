@@ -237,13 +237,116 @@ actions: {
 
 Cette architecture permet une séparation claire entre les fonctionnalités accessibles aux clients et aux administrateurs, tout en maintenant une expérience utilisateur cohérente et sécurisée.
 
-## 4. Tests et Qualité
+### Fonctionnalités Principales
 
-### Tests Unitaires avec Vitest
-- Tests des stores
-- Tests des composants
-- Tests des formulaires
-- Couverture de test
+1. **Gestion des Produits** (`src/views/ProductsView.vue`)
+```javascript
+// Gestion de l'état des produits
+const products = ref([])
+const loading = ref(false)
+const error = ref(null)
+
+// Récupération des produits
+const fetchProducts = async () => {
+  loading.value = true
+  try {
+    const response = await axiosInstance.get('/products')
+    products.value = response.data
+  } catch (err) {
+    error.value = 'Erreur lors du chargement des produits'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Suppression d'un produit
+const deleteProduct = async (id) => {
+  if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+    try {
+      await axiosInstance.delete(`/products/${id}`)
+      products.value = products.value.filter(p => p.id !== id)
+    } catch (err) {
+      error.value = 'Erreur lors de la suppression'
+      console.error(err)
+    }
+  }
+}
+```
+
+2. **Formulaire Multi-étapes** (`src/components/CheckoutForm.vue`)
+```javascript
+// Gestion des étapes du formulaire
+const currentStep = ref(1)
+const totalSteps = 3
+
+// Validation des étapes
+const validateStep = (step) => {
+  switch(step) {
+    case 1:
+      return validatePersonalInfo()
+    case 2:
+      return validateShippingInfo()
+    case 3:
+      return validatePaymentInfo()
+    default:
+      return false
+  }
+}
+
+// Navigation entre les étapes
+const nextStep = () => {
+  if (validateStep(currentStep.value)) {
+    currentStep.value++
+  }
+}
+
+const prevStep = () => {
+  currentStep.value--
+}
+```
+
+3. **Design Responsive** (`src/App.vue`)
+```html
+<!-- Menu responsive -->
+<nav class="bg-gray-800">
+  <!-- Menu mobile -->
+  <div class="md:hidden">
+    <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-button">
+      <span class="sr-only">Menu</span>
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Menu desktop -->
+  <div class="hidden md:block">
+    <div class="ml-10 flex items-baseline space-x-4">
+      <!-- Navigation items -->
+    </div>
+  </div>
+</nav>
+```
+
+4. **Transitions et Animations** (`src/components/ProductCard.vue`)
+```html
+<template>
+  <transition
+    enter-active-class="transition ease-out duration-300"
+    enter-from-class="transform opacity-0 scale-95"
+    enter-to-class="transform opacity-100 scale-100"
+    leave-active-class="transition ease-in duration-200"
+    leave-from-class="transform opacity-100 scale-100"
+    leave-to-class="transform opacity-0 scale-95"
+  >
+    <div v-if="show" class="product-card">
+      <!-- Contenu de la carte produit -->
+    </div>
+  </transition>
+</template>
+```
 
 ## 5. Optimisation et Production
 
@@ -256,6 +359,116 @@ Cette architecture permet une séparation claire entre les fonctionnalités acce
 - GitHub Actions
 - Déploiement sur VPS
 - Intégration continue
+
+### Configuration du Déploiement
+
+1. **Workflow GitHub Actions** (`.github/workflows/deploy.yml`)
+```yaml
+name: Deploy Vue.js to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Install Node and dependencies
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    - name: Install dependencies and build
+      run: |
+        npm install
+        npm run build
+
+    - name: Deploy to VPS via SCP
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "dist/*"
+        target: ${{ secrets.VPS_PATH }}
+        strip_components: 1
+        overwrite: true
+```
+
+2. **Configuration Vite** (`vite.config.js`)
+```javascript
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+  build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor': ['vue', 'vue-router', 'pinia'],
+          'ui': ['@headlessui/vue', '@heroicons/vue']
+        }
+      }
+    }
+  }
+})
+```
+
+3. **Configuration Nginx** (`nginx.conf`)
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+    root /var/www/html;
+    index index.html;
+
+    # Compression gzip
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Cache des assets statiques
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    # Redirection vers index.html pour le routage SPA
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Headers de sécurité
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Content-Type-Options "nosniff";
+}
+```
+
+Cette configuration assure :
+- Un déploiement automatisé et sécurisé
+- Une optimisation des performances
+- Une gestion efficace du cache
+- Une protection contre les attaques courantes
 
 ## Installation et Démarrage
 
