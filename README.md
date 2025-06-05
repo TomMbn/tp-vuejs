@@ -108,80 +108,9 @@ src/
 - Menu mobile/desktop
 - Formulaire multi-étapes
 
-### Séparation Front/Back Office
-La gestion des accès et des rôles est implémentée de la manière suivante :
-
-1. **Gestion des Rôles** (`src/stores/auth.js`)
-```javascript
-// Gestion du token et des informations utilisateur
-state: () => {
-  const token = localStorage.getItem('token')
-  let user = null
-  
-  if (token) {
-    try {
-      user = jwtDecode(token)
-    } catch (error) {
-      console.error('Error decoding token:', error)
-      localStorage.removeItem('token')
-    }
-  }
-  
-  return {
-    token,
-    user
-  }
-},
-
-// Getters pour vérifier l'authentification et le rôle
-getters: {
-  isAuthenticated: (state) => !!state.token,
-  userRole: (state) => state.user?.role
-}
-```
-- Le rôle de l'utilisateur est stocké dans le token JWT
-- Accessible via le store d'authentification
-- Différenciation entre administrateurs et clients
-
-2. **Protection des Routes** (`src/router/index.js`)
-```javascript
-// Configuration des routes avec meta-données
-const routes = [
-  {
-    path: '/products',
-    name: 'products',
-    component: ProductsView,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/users',
-    name: 'users',
-    component: UsersView,
-    meta: { requiresAuth: true }
-  }
-]
-
-// Navigation guard pour protéger les routes
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem('token')
-  if (to.meta.requiresAuth && !token) {
-    next('/login')
-  } else {
-    next()
-  }
-})
-```
-- Routes sensibles protégées avec `requiresAuth: true`
-- Navigation guard pour vérifier l'authentification
-- Redirection vers login si non authentifié
-
-3. **Accès Conditionnel** (`src/App.vue`)
-```javascript
-// Dans le script
-const authStore = useAuthStore()
-const isLoginPage = computed(() => route.name === 'login')
-
-// Dans le template
+### Navigation et Design Responsive (`src/App.vue`)
+```vue
+<!-- Navigation responsive -->
 <nav v-if="authStore.isAuthenticated" class="bg-gray-800 w-full">
   <!-- Menu desktop -->
   <div class="hidden md:block">
@@ -195,144 +124,23 @@ const isLoginPage = computed(() => route.name === 'login')
       </router-link>
     </div>
   </div>
-</nav>
-```
-- Interface adaptée selon le rôle de l'utilisateur
-- Fonctionnalités spécifiques pour les administrateurs
-- Restrictions d'accès pour les clients
 
-4. **Gestion de l'Authentification** (`src/stores/auth.js`)
-```javascript
-// Actions pour gérer l'authentification
-actions: {
-  async login(email, password) {
-    try {
-      const response = await axiosInstance.post('/auth/login', {
-        email,
-        mot_de_passe: password
-      })
-      
-      const { token } = response.data
-      this.token = token
-      localStorage.setItem('token', token)
-      this.user = jwtDecode(token)
-      
-      return true
-    } catch (error) {
-      console.error('Login error:', error)
-      throw error
-    }
-  },
-  
-  logout() {
-    this.token = null
-    this.user = null
-    localStorage.removeItem('token')
-  }
-}
-```
-- Gestion sécurisée de la connexion
-- Stockage du token JWT
-- Déconnexion et nettoyage des données
-
-Cette architecture permet une séparation claire entre les fonctionnalités accessibles aux clients et aux administrateurs, tout en maintenant une expérience utilisateur cohérente et sécurisée.
-
-### Fonctionnalités Principales
-
-1. **Gestion des Produits** (`src/views/ProductsView.vue`)
-```javascript
-// Gestion de l'état des produits
-const products = ref([])
-const loading = ref(false)
-const error = ref(null)
-
-// Récupération des produits
-const fetchProducts = async () => {
-  loading.value = true
-  try {
-    const response = await axiosInstance.get('/products')
-    products.value = response.data
-  } catch (err) {
-    error.value = 'Erreur lors du chargement des produits'
-    console.error(err)
-  } finally {
-    loading.value = false
-  }
-}
-
-// Suppression d'un produit
-const deleteProduct = async (id) => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-    try {
-      await axiosInstance.delete(`/products/${id}`)
-      products.value = products.value.filter(p => p.id !== id)
-    } catch (err) {
-      error.value = 'Erreur lors de la suppression'
-      console.error(err)
-    }
-  }
-}
-```
-
-2. **Formulaire Multi-étapes** (`src/components/CheckoutForm.vue`)
-```javascript
-// Gestion des étapes du formulaire
-const currentStep = ref(1)
-const totalSteps = 3
-
-// Validation des étapes
-const validateStep = (step) => {
-  switch(step) {
-    case 1:
-      return validatePersonalInfo()
-    case 2:
-      return validateShippingInfo()
-    case 3:
-      return validatePaymentInfo()
-    default:
-      return false
-  }
-}
-
-// Navigation entre les étapes
-const nextStep = () => {
-  if (validateStep(currentStep.value)) {
-    currentStep.value++
-  }
-}
-
-const prevStep = () => {
-  currentStep.value--
-}
-```
-
-3. **Design Responsive** (`src/App.vue`)
-```html
-<!-- Menu responsive -->
-<nav class="bg-gray-800">
   <!-- Menu mobile -->
   <div class="md:hidden">
-    <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-button">
+    <button
+      @click="mobileMenuOpen = !mobileMenuOpen"
+      class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700"
+    >
       <span class="sr-only">Menu</span>
       <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
       </svg>
     </button>
   </div>
-
-  <!-- Menu desktop -->
-  <div class="hidden md:block">
-    <div class="ml-10 flex items-baseline space-x-4">
-      <!-- Navigation items -->
-    </div>
-  </div>
 </nav>
-```
 
-4. **Transitions et Animations**
-```html
-<!-- Dans App.vue -->
+<!-- Transitions de page -->
 <router-view v-slot="{ Component }">
   <transition name="page" mode="out-in">
     <component :is="Component" />
@@ -352,10 +160,218 @@ const prevStep = () => {
 </style>
 ```
 
-Les transitions sont utilisées pour :
-- Animer les changements de pages avec un effet de fondu
-- Gérer l'affichage/masquage du menu mobile
-- Améliorer l'expérience utilisateur avec des animations fluides
+### Gestion des Produits (`src/views/ProductsView.vue`)
+```javascript
+// Gestion de l'état des produits
+const products = ref([])
+const loading = ref(false)
+const error = ref(null)
+const currentPage = ref(1)
+const ITEMS_PER_PAGE = 25
+
+// Filtres et tri
+const filters = ref({
+  type: '',
+  marque: ''
+})
+
+// Récupération des produits
+const fetchProducts = async () => {
+  loading.value = true
+  try {
+    const response = await axiosInstance.get('/products')
+    products.value = response.data
+  } catch (err) {
+    error.value = 'Erreur lors du chargement des produits'
+    console.error(err)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Pagination
+const totalPages = computed(() => {
+  return Math.ceil(filteredProducts.value.length / ITEMS_PER_PAGE)
+})
+
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * ITEMS_PER_PAGE
+  const end = start + ITEMS_PER_PAGE
+  return filteredProducts.value.slice(start, end)
+})
+```
+
+### Gestion de l'Authentification (`src/stores/auth.js`)
+```javascript
+// Store Pinia pour l'authentification
+export const useAuthStore = defineStore('auth', {
+  state: () => {
+    const token = localStorage.getItem('token')
+    let user = null
+    
+    if (token) {
+      try {
+        user = jwtDecode(token)
+      } catch (error) {
+        console.error('Error decoding token:', error)
+        localStorage.removeItem('token')
+      }
+    }
+    
+    return {
+      token,
+      user
+    }
+  },
+
+  getters: {
+    isAuthenticated: (state) => !!state.token,
+    userRole: (state) => state.user?.role
+  },
+
+  actions: {
+    async login(email, password) {
+      try {
+        const response = await axiosInstance.post('/auth/login', {
+          email,
+          mot_de_passe: password
+        })
+        
+        const { token } = response.data
+        this.token = token
+        localStorage.setItem('token', token)
+        this.user = jwtDecode(token)
+        
+        return true
+      } catch (error) {
+        console.error('Login error:', error)
+        throw error
+      }
+    },
+    
+    logout() {
+      this.token = null
+      this.user = null
+      localStorage.removeItem('token')
+    }
+  }
+})
+```
+
+### Gestion du Panier (`src/stores/cart.js`)
+```javascript
+// Store Pinia pour la gestion du panier
+export const useCartStore = defineStore('cart', {
+  state: () => ({
+    items: [],
+    total: 0
+  }),
+
+  getters: {
+    cartTotal: (state) => {
+      return state.items.reduce((total, item) => total + (item.prix * item.quantity), 0)
+    },
+    itemCount: (state) => {
+      return state.items.reduce((count, item) => count + item.quantity, 0)
+    }
+  },
+
+  actions: {
+    addToCart(product, quantity = 1) {
+      const existingItem = this.items.find(item => item.id_produit === product.id_produit)
+      
+      if (existingItem) {
+        existingItem.quantity += quantity
+      } else {
+        this.items.push({
+          ...product,
+          quantity
+        })
+      }
+    },
+
+    removeFromCart(productId) {
+      const index = this.items.findIndex(item => item.id_produit === productId)
+      if (index !== -1) {
+        this.items.splice(index, 1)
+      }
+    },
+
+    updateQuantity(productId, quantity) {
+      const item = this.items.find(item => item.id_produit === productId)
+      if (item) {
+        item.quantity = Math.max(0, quantity)
+        if (item.quantity === 0) {
+          this.removeFromCart(productId)
+        }
+      }
+    },
+
+    clearCart() {
+      this.items = []
+    }
+  }
+})
+```
+
+### Tests Unitaires (`src/__tests__/App.test.js`)
+```javascript
+// Configuration des tests
+describe('App.vue', () => {
+  let pinia
+  let authStore
+
+  beforeEach(() => {
+    // Réinitialisation des mocks
+    vi.clearAllMocks()
+    localStorageMock.getItem.mockReturnValue('fake-token')
+    
+    pinia = createPinia()
+    setActivePinia(pinia)
+    authStore = useAuthStore()
+  })
+
+  // Test de l'affichage de la navigation pour un utilisateur authentifié
+  it('renders navigation when authenticated', async () => {
+    authStore.token = 'fake-token'
+    authStore.user = { role: 'user' }
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [router, pinia],
+        stubs: {
+          'router-link': true,
+          'router-view': true
+        }
+      }
+    })
+
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('nav').exists()).toBe(true)
+  })
+
+  // Test de l'affichage de la page de login pour un utilisateur non authentifié
+  it('shows login page without navigation', async () => {
+    authStore.token = null
+    authStore.user = null
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [router, pinia],
+        stubs: {
+          'router-link': true,
+          'router-view': true
+        }
+      }
+    })
+
+    await router.push('/login')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('nav').exists()).toBe(false)
+  })
+})
+```
 
 ## 5. Optimisation et Production
 
@@ -373,8 +389,10 @@ Les transitions sont utilisées pour :
 
 1. **Workflow GitHub Actions** (`.github/workflows/deploy.yml`)
 ```yaml
+# Nom du workflow
 name: Deploy Vue.js to VPS
 
+# Déclenchement du workflow sur push vers main
 on:
   push:
     branches:
@@ -385,48 +403,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # Étape 1: Récupération du code source
     - name: Checkout repository
       uses: actions/checkout@v3
 
+    # Étape 2: Installation de Node.js et des dépendances
     - name: Install Node and dependencies
       uses: actions/setup-node@v3
       with:
         node-version: '20'
 
+    # Étape 3: Installation des dépendances et build
     - name: Install dependencies and build
       run: |
         npm install
         npm run build
 
+    # Étape 4: Déploiement sur le VPS via SCP
     - name: Deploy to VPS via SCP
       uses: appleboy/scp-action@v0.1.4
       with:
-        host: ${{ secrets.VPS_HOST }}
-        username: ${{ secrets.VPS_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "dist/*"
-        target: ${{ secrets.VPS_PATH }}
+        host: ${{ secrets.VPS_HOST }}        # Hôte du serveur
+        username: ${{ secrets.VPS_USER }}    # Utilisateur SSH
+        key: ${{ secrets.SSH_PRIVATE_KEY }}  # Clé SSH privée
+        source: "dist/*"                     # Fichiers à déployer
+        target: ${{ secrets.VPS_PATH }}      # Destination sur le serveur
         strip_components: 1
         overwrite: true
 ```
 
 2. **Configuration Vite** (`vite.config.js`)
 ```javascript
+// Import des dépendances nécessaires
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
+// Configuration de Vite
 export default defineConfig({
+  // Plugins utilisés pour le développement
   plugins: [
-    vue(),
-    vueDevTools(),
+    vue(),           // Plugin principal pour Vue.js
+    vueDevTools(),   // Outils de développement Vue
   ],
+  // Configuration des alias pour les imports
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
+  // Configuration du serveur de développement
   server: {
     proxy: {
       '/v1': {
