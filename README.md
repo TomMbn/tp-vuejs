@@ -330,23 +330,32 @@ const prevStep = () => {
 </nav>
 ```
 
-4. **Transitions et Animations** (`src/components/ProductCard.vue`)
+4. **Transitions et Animations**
 ```html
-<template>
-  <transition
-    enter-active-class="transition ease-out duration-300"
-    enter-from-class="transform opacity-0 scale-95"
-    enter-to-class="transform opacity-100 scale-100"
-    leave-active-class="transition ease-in duration-200"
-    leave-from-class="transform opacity-100 scale-100"
-    leave-to-class="transform opacity-0 scale-95"
-  >
-    <div v-if="show" class="product-card">
-      <!-- Contenu de la carte produit -->
-    </div>
+<!-- Dans App.vue -->
+<router-view v-slot="{ Component }">
+  <transition name="page" mode="out-in">
+    <component :is="Component" />
   </transition>
-</template>
+</router-view>
+
+<style>
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+</style>
 ```
+
+Les transitions sont utilisées pour :
+- Animer les changements de pages avec un effet de fondu
+- Gérer l'affichage/masquage du menu mobile
+- Améliorer l'expérience utilisateur avec des animations fluides
 
 ## 5. Optimisation et Production
 
@@ -403,72 +412,46 @@ jobs:
 
 2. **Configuration Vite** (`vite.config.js`)
 ```javascript
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
+import vueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    vueDevTools(),
+  ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  build: {
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true
-      }
-    },
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'vendor': ['vue', 'vue-router', 'pinia'],
-          'ui': ['@headlessui/vue', '@heroicons/vue']
-        }
+  server: {
+    proxy: {
+      '/v1': {
+        target: 'http://tom.mauboussin.angers.mds-project.fr:8080',
+        changeOrigin: true,
+        secure: false
       }
     }
   }
 })
 ```
 
-3. **Configuration Nginx** (`nginx.conf`)
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /var/www/html;
-    index index.html;
-
-    # Compression gzip
-    gzip on;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-
-    # Cache des assets statiques
-    location /assets/ {
-        expires 1y;
-        add_header Cache-Control "public, no-transform";
-    }
-
-    # Redirection vers index.html pour le routage SPA
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # Headers de sécurité
-    add_header X-Frame-Options "SAMEORIGIN";
-    add_header X-XSS-Protection "1; mode=block";
-    add_header X-Content-Type-Options "nosniff";
-}
-```
-
 Cette configuration assure :
-- Un déploiement automatisé et sécurisé
-- Une optimisation des performances
-- Une gestion efficace du cache
-- Une protection contre les attaques courantes
+- L'utilisation des plugins Vue et Vue DevTools
+- La configuration des alias pour les imports
+- La configuration du proxy pour l'API backend
+- L'optimisation du développement
+
+3. **Configuration du Serveur**
+Pour le déploiement en production, il est recommandé de :
+- Configurer un serveur web (Nginx ou Apache) pour servir les fichiers statiques
+- Mettre en place un proxy pour l'API
+- Configurer les en-têtes de sécurité appropriés
+- Activer la compression gzip
+- Configurer le cache des assets statiques
 
 ## Installation et Démarrage
 
