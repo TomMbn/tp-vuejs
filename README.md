@@ -108,7 +108,9 @@ src/
 - Menu mobile/desktop
 - Formulaire multi-étapes
 
-### Navigation et Design Responsive (`src/App.vue`)
+### Navigation et Design Responsive
+Le composant principal `App.vue` gère la navigation responsive avec un menu adaptatif pour mobile et desktop. Il inclut également des transitions de page pour une meilleure expérience utilisateur.
+
 ```vue
 <!-- Navigation responsive -->
 <nav v-if="authStore.isAuthenticated" class="bg-gray-800 w-full">
@@ -160,7 +162,9 @@ src/
 </style>
 ```
 
-### Gestion des Produits (`src/views/ProductsView.vue`)
+### Gestion des Produits
+Le composant `ProductsView.vue` implémente la logique de gestion des produits avec pagination, filtres et gestion des erreurs. Il utilise l'API de Composition de Vue 3 pour une meilleure organisation du code.
+
 ```javascript
 // Gestion de l'état des produits
 const products = ref([])
@@ -201,7 +205,9 @@ const paginatedProducts = computed(() => {
 })
 ```
 
-### Gestion de l'Authentification (`src/stores/auth.js`)
+### Gestion de l'Authentification
+Le store Pinia `auth.js` gère l'authentification des utilisateurs, incluant le stockage sécurisé du token JWT et la persistance de l'état de connexion. Il utilise le localStorage pour maintenir la session utilisateur.
+
 ```javascript
 // Store Pinia pour l'authentification
 export const useAuthStore = defineStore('auth', {
@@ -258,7 +264,9 @@ export const useAuthStore = defineStore('auth', {
 })
 ```
 
-### Gestion du Panier (`src/stores/cart.js`)
+### Gestion du Panier
+Le store Pinia `cart.js` implémente la logique du panier d'achat avec des fonctionnalités d'ajout, suppression et mise à jour des quantités. Il calcule automatiquement le total et le nombre d'articles.
+
 ```javascript
 // Store Pinia pour la gestion du panier
 export const useCartStore = defineStore('cart', {
@@ -314,7 +322,9 @@ export const useCartStore = defineStore('cart', {
 })
 ```
 
-### Tests Unitaires (`src/__tests__/App.test.js`)
+### Tests Unitaires
+Les tests unitaires dans `App.test.js` vérifient le bon fonctionnement de l'application, notamment la navigation et l'authentification. Ils utilisent Vitest et Vue Test Utils pour simuler les interactions utilisateur.
+
 ```javascript
 // Configuration des tests
 describe('App.vue', () => {
@@ -387,7 +397,9 @@ describe('App.vue', () => {
 
 ### Configuration du Déploiement
 
-1. **Workflow GitHub Actions** (`.github/workflows/deploy.yml`)
+1. **Workflow GitHub Actions**
+Le fichier `.github/workflows/deploy.yml` définit le pipeline CI/CD qui automatise le déploiement de l'application sur le VPS. Il gère la construction et le déploiement des fichiers à chaque push sur la branche main.
+
 ```yaml
 # Nom du workflow
 name: Deploy Vue.js to VPS
@@ -432,7 +444,9 @@ jobs:
         overwrite: true
 ```
 
-2. **Configuration Vite** (`vite.config.js`)
+2. **Configuration Vite**
+Le fichier `vite.config.js` configure l'environnement de développement et de production, incluant les plugins Vue, les alias d'importation et la configuration du proxy pour l'API.
+
 ```javascript
 // Import des dépendances nécessaires
 import { fileURLToPath, URL } from 'node:url'
