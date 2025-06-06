@@ -6,7 +6,7 @@ A l'issue de ce module, l'apprenant sera à même d'utiliser une technologie Jav
 
 | Description | barème |  fait |
 |:---|----:|----:|
-| maquettage | 1,5 | ❌ |
+| maquettage | 1,5 | ✔ |
 | framework CSS                                                | 1 | ✔ |
 | utilisation d'une plateforme de versionning (git)            | 1| ✔ |
 | API GET : création d'une page d'affichage de donnée           |0,5| ✔ |
@@ -14,7 +14,7 @@ A l'issue de ce module, l'apprenant sera à même d'utiliser une technologie Jav
 |   API DELETE : rendre la possibilité de supprimer un seul élément|0,5| ✔ |
 | création d'un composants personnalisés                      | 1| ✔ |
 | utilisation du local Storage (gestion du token JWT par exemple)                                | 1| ✔ |
-| réalisation de tests unitaires (via un framework )           | 1,5| ❌ |
+| réalisation de tests unitaires (via un framework )           | 1,5| ✔ |
 | formulaire multi etape                                       | 1| ✔ |
 | transition                                                   | 1| ✔ |
 | site web responsive                                          | 1,5| ✔ |
